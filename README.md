@@ -2,31 +2,20 @@
 
 A modern Bitcoin Lightning wallet built with the Spark SDK, featuring both web browser and mobile web support.
 
-A message from the developer:
-
 *This is a reckless application I made with [Cursor AI](https://cursor.com). There are most certainly bugs in this application. It is not audited. Do not use deposit funds into this wallet you are not willing to use. The wallet works with onchain deposits, Spark payments, and LN. To use LN, you must have over 1000 sats in the wallet. To add sats, generate an onchain address and send funds there. Spark payments can be spent immediately and for any amount. If you receive a payment, refresh the application and it'll show up.*
 
 ![Spark Wallet](https://img.shields.io/badge/Bitcoin-Lightning-orange) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 
-## ✨ Features
+## ⚡ Features
 
-### 2️⃣ **Dual Platform Support**
+### **Dual Platform Support**
 - **Web Browser**: A simple in-browser web wallet
 - **Mobile Web**: A simple in-browser web wallet fitted for mobile phones
 
-### ⚡ **Lightning & Spark Payments**
+### **Lightning & Spark Payments**
 - **Spark Payments**: Instant transfers between Spark wallets with lower fees
 - **Lightning Network**: Send and receive Lightning payments
 - **On-chain Deposits**: Bitcoin deposit address generation
-
-### 🔐 **Security & Persistence**
-- **Seed Phrase**: Standard 12-word mnemonic for wallet recovery
-- **Local Storage**: Automatic wallet persistence (web version)
-- **Secure Logout**: Confirmation dialogs to prevent accidental logouts
-
-### 📱 **Mobile-First Design**
-- **Responsive UI**: Optimized for mobile screens
-- **Touch Optimized**: Mobile-friendly interactions and copy functionality
 
 ## 🛠 Tech Stack
 
