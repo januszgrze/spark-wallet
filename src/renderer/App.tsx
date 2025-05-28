@@ -515,7 +515,9 @@ const App: React.FC = () => {
         return (
           <DepositScreen
             depositAddress={depositAddress}
+            copySuccess={copySuccess}
             onGenerateAddress={updateDepositAddress}
+            onCopyAddress={copyToClipboard}
             onBack={() => setScreen('HOME')}
           />
         );

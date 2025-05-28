@@ -2,18 +2,22 @@ import React from 'react';
 
 interface DepositScreenProps {
   depositAddress: string;
+  copySuccess: string;
   onGenerateAddress: () => void;
+  onCopyAddress: (address: string) => void;
   onBack: () => void;
 }
 
 const DepositScreen: React.FC<DepositScreenProps> = ({
   depositAddress,
+  copySuccess,
   onGenerateAddress,
+  onCopyAddress,
   onBack
 }) => {
   return (
-    <>
-      <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '32px' }}>
+    <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+      <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '32px', textAlign: 'center' }}>
         Deposit
       </h1>
 
@@ -33,12 +37,19 @@ const DepositScreen: React.FC<DepositScreenProps> = ({
               color: '#FFFFFF',
               fontSize: '14px',
               marginTop: '24px',
-              textAlign: 'center',
-              width: '100%'
+              textAlign: 'center'
             }}
           >
             {depositAddress}
           </div>
+
+          <button
+            className="full-width-button"
+            onClick={() => onCopyAddress(depositAddress)}
+            style={{ marginTop: '12px' }}
+          >
+            {copySuccess || 'Copy Address'}
+          </button>
 
           <p
             style={{
@@ -57,7 +68,7 @@ const DepositScreen: React.FC<DepositScreenProps> = ({
       <button className="full-width-button" onClick={onBack} style={{ marginTop: '32px' }}>
         Back to Home
       </button>
-    </>
+    </div>
   );
 };
 
