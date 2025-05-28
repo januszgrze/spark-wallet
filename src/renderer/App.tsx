@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { SparkWallet } from '@buildonspark/spark-sdk';
 import { getLatestDepositTxId } from "@buildonspark/spark-sdk/utils";
-import { HomeScreen, InitScreen, SendScreen, ReceiveScreen, DepositScreen } from './screens';
+import { HomeScreen, InitScreen, SendScreen, ReceiveScreen, DepositScreen, TransfersScreen, SettingsScreen } from './screens';
 import './styles.css';
 
 type WalletInstance = SparkWallet;
 
-type Screen = 'INIT' | 'HOME' | 'SEND' | 'RECEIVE' | 'DEPOSIT';
+type Screen = 'INIT' | 'HOME' | 'SEND' | 'RECEIVE' | 'DEPOSIT' | 'SETTINGS' | 'TRANSFERS';
 
 type LightningReceiveRequestStatus = 'CREATED' | 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED';
 
@@ -463,6 +463,7 @@ const App: React.FC = () => {
             onSendClick={() => setScreen('SEND')}
             onReceiveClick={() => setScreen('RECEIVE')}
             onDepositClick={() => setScreen('DEPOSIT')}
+            onSettingsClick={() => setScreen('SETTINGS')}
             onLogoutClick={logoutWallet}
           />
         );
@@ -519,6 +520,22 @@ const App: React.FC = () => {
             onGenerateAddress={updateDepositAddress}
             onCopyAddress={copyToClipboard}
             onBack={() => setScreen('HOME')}
+          />
+        );
+
+      case 'SETTINGS':
+        return (
+          <SettingsScreen
+            onViewTransfers={() => setScreen('TRANSFERS')}
+            onBack={() => setScreen('HOME')}
+          />
+        );
+
+      case 'TRANSFERS':
+        return (
+          <TransfersScreen
+            wallet={wallet}
+            onBack={() => setScreen('SETTINGS')}
           />
         );
     }
