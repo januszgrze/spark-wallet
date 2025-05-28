@@ -2,7 +2,9 @@
 
 A reckless bitcoin wallet built with the Spark SDK, featuring both web browser and mobile web support.
 
-*This is a reckless application I made with [Cursor AI](https://cursor.com). There are most certainly bugs in this application. It is not audited. The code is probably bad. Do not use deposit funds into this wallet you are not willing to use. I have already lost access to funds, I promise! The wallet works with onchain deposits, Spark payments, and LN. To use LN, you must have over 1000 sats in the wallet. To add sats, generate an onchain address and send funds there. Spark payments can be spent immediately and for any amount. If you receive a payment, refresh the application and it'll show up.*
+*This is a reckless application I made with [Cursor AI](https://cursor.com). There are most certainly bugs in this application. It is not audited. The code is probably bad. The readme details are probably a bit off. It's a mess.*
+
+*Do not use deposit funds into this wallet you are not willing to use. I have already lost access to funds, I promise! The wallet works with onchain deposits, Spark payments, and LN. To use LN, you must have over 1000 sats in the wallet. To add sats, generate an onchain address and send funds there. Spark payments can be spent immediately and for any amount. If you receive a payment, refresh the application and it'll show up.*
 
 ![Spark Wallet](https://img.shields.io/badge/Bitcoin-Lightning-orange) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 
@@ -46,7 +48,7 @@ npm run dev
 npm run dev-web
 ```
 
-## 🚀 Usage
+## Usage
 
 ### Desktop Application
 ```bash
@@ -65,7 +67,7 @@ The web version will be available at:
 - **Local**: http://localhost:3001
 - **Network**: http://[your-ip]:3001 (for mobile testing)
 
-## 📱 Mobile Features
+## Mobile Features
 
 ### Mobile Optimizations
 - Viewport scaling for proper mobile display
@@ -73,7 +75,7 @@ The web version will be available at:
 - iOS Safari optimizations (address bar hiding, bounce prevention)
 - Prevents unwanted zoom on input focus
 
-## 🔧 Development
+## Development
 
 ### Project Structure
 ```
@@ -111,14 +113,14 @@ src/
 - Responsive design with mobile-first approach
 - PWA manifest for native app installation
 
-## 🔐 Security Notes
+## Security Notes
 
 - **Seed Phrases**: Stored locally, never transmitted
 - **Private Keys**: Generated and managed by Spark SDK
 - **Web Storage**: Uses localStorage for wallet persistence
 - **HTTPS Required**: For PWA features and clipboard access
 
-## 🌐 Deployment
+## Deployment
 
 ### Web Deployment
 1. Build the web version: `npm run build-web`
@@ -129,7 +131,7 @@ src/
 1. Build the desktop app: `npm run build`
 2. Package with electron-builder for distribution
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
@@ -137,11 +139,11 @@ src/
 4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Spark SDK](https://github.com/buildonspark/spark-sdk) for Bitcoin Lightning functionality
 - [React](https://reactjs.org/) for the user interface
