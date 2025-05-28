@@ -1,4 +1,4 @@
-# Spark Demo Wallet
+# Sparky, a reckless demo wallet built with the Spark SDK
 
 A modern Bitcoin Lightning wallet built with the Spark SDK, featuring both web browser and mobile web support.
 
