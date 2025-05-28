@@ -2,7 +2,7 @@
 
 A simple Bitcoin wallet built with the Spark SDK, featuring both web browser and mobile web support.
 
-*This is a reckless application I made with [Cursor AI](https://cursor.com). There are most certainly bugs in this application. It is not audited. Do not use deposit funds into this wallet you are not willing to use. The wallet supports onchain deposits, Spark payments, and LN. To use LN, you must have over 1000 sats in the wallet. To add sats, generate an onchain address and send funds there. Spark payments can be spent immediately and for any amount. If you receive a payment, refresh the application and it'll show up.*
+*This is a reckless application I made with [Cursor AI](https://cursor.com). There are most certainly bugs in this application. It is not audited. Do not use deposit funds into this wallet you are not willing to use. There is no tech support as I don't really know how it works. The wallet supports onchain deposits, Spark payments, and LN. To use LN, you must have over 1000 sats in the wallet. To add sats, generate an onchain address and send funds there. Spark payments can be spent immediately and for any amount. If you receive a payment, refresh the application and it'll show up.*
 
 ![Spark Wallet](https://img.shields.io/badge/Bitcoin-Lightning-orange) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 
