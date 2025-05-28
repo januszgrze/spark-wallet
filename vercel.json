@@ -3,7 +3,6 @@
   "outputDirectory": "dist-web",
   "installCommand": "npm install",
   "framework": null,
-  "functions": {},
   "rewrites": [
     {
       "source": "/(.*)",
