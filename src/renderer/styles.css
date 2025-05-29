@@ -385,7 +385,7 @@
     align-items: center;
     position: absolute;
     left: 50%;
-    top: 65%;
+    top: 68.5%;
     transform: translateX(-50%);
     width: 80%;
     gap: 4vh;
@@ -399,7 +399,7 @@
     border: none;
     border-radius: 15px;
     font-family: Arial, sans-serif;
-    font-size: 3vw;
+    font-size: 4vw;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
