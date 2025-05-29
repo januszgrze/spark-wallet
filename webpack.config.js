@@ -19,6 +19,13 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[name][ext][query]'
+        }
       }
     ]
   },
@@ -56,9 +63,15 @@ module.exports = {
     })
   ],
   devServer: {
-    static: {
-      directory: path.join(__dirname, 'dist'),
-    },
+    static: [
+      {
+        directory: path.join(__dirname, 'dist'),
+      },
+      {
+        directory: path.join(__dirname, 'public'),
+        publicPath: '/'
+      }
+    ],
     hot: true,
     port: 3000,
     historyApiFallback: true

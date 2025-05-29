@@ -1,9 +1,12 @@
 import React from 'react';
+import sparkyImg from '../assets/sparky.png';
+import satsImg from '../assets/sats.png';
 
 interface HomeScreenProps {
   balance: string;
   onSendClick: () => void;
   onReceiveClick: () => void;
+  onWalletClick: () => void;
   onDepositClick: () => void;
   onSettingsClick: () => void;
   onLogoutClick: () => void;
@@ -13,59 +16,56 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   balance,
   onSendClick,
   onReceiveClick,
+  onWalletClick,
   onDepositClick,
   onSettingsClick,
-  onLogoutClick
+  onLogoutClick,
 }) => {
+  const formatted = balance.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
   return (
-    <div className="wallet-card" style={{ position: 'relative' }}>
-      {/* Settings button in top right corner */}
-      <button
-        onClick={onSettingsClick}
-        style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          background: 'transparent',
-          border: 'none',
-          color: '#FFFFFF',
-          fontSize: '18px',
-          cursor: 'pointer',
-          padding: '8px',
-          borderRadius: '4px',
-          opacity: 0.7,
-          transition: 'opacity 0.2s'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
-      >
-        ⋯
-      </button>
+    <div className="home-screen-container">
+      <div className="home-screen-background">
+        {/* Sparky Logo */}
+        <div className="sparky-logo">
+          <img src={sparkyImg} alt="Sparky" className="sparky-image" />
+        </div>
 
-      <div className="balance-display">
-        {balance.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-        <span className="balance-unit">SATS</span>
-      </div>
+        {/* Balance Amount */}
+        <div className="balance-container">
+          <div className="balance-amount">{formatted}</div>
+          <div className="sats-logo">
+            <img src={satsImg} alt="Sats" className="sats-image" />
+          </div>
+        </div>
 
-      <div className="button-container">
-        <button onClick={onSendClick}>Send</button>
-        <button onClick={onReceiveClick}>Receive</button>
-      </div>
+        {/* Send and Receive Buttons */}
+        <div className="action-buttons-container">
+          <button className="send-button" onClick={onSendClick}>
+            <div className="button-text">SEND</div>
+            <div className="send-arrow">↗</div>
+          </button>
+          <button className="receive-button" onClick={onReceiveClick}>
+            <div className="button-text">RECEIVE</div>
+            <div className="receive-arrow">↙</div>
+          </button>
+        </div>
 
-      <button className="full-width-button" onClick={onDepositClick}>Deposit</button>
-      
-      <div 
-        onClick={onLogoutClick}
-        style={{ 
-          marginTop: '45px',
-          textAlign: 'center',
-          fontSize: '12px',
-          color: '#00FF2B',
-          cursor: 'pointer',
-          textDecoration: 'underline'
-        }}
-      >
-        LOGOUT
+        {/* Bottom Navigation */}
+        <div className="bottom-nav">
+          <button className="nav-button wallet-button" onClick={onWalletClick}>
+            WALLET
+          </button>
+          <button className="nav-button deposit-button" onClick={onDepositClick}>
+            DEPOSIT
+          </button>
+          <button className="nav-button settings-button" onClick={onSettingsClick}>
+            SETTINGS
+          </button>
+          <button className="nav-button logout-button" onClick={onLogoutClick}>
+            LOGOUT
+          </button>
+        </div>
       </div>
     </div>
   );

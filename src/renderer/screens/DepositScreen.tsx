@@ -1,73 +1,90 @@
 import React from 'react';
+import sparkyImg from '../assets/sparky.png';
+import satsImg from '../assets/sats.png';
 
 interface DepositScreenProps {
+  balance: string;
   depositAddress: string;
   copySuccess: string;
   onGenerateAddress: () => void;
   onCopyAddress: (address: string) => void;
-  onBack: () => void;
+  onWalletClick: () => void;
+  onDepositClick: () => void;
+  onSettingsClick: () => void;
+  onLogoutClick: () => void;
 }
 
 const DepositScreen: React.FC<DepositScreenProps> = ({
+  balance,
   depositAddress,
   copySuccess,
   onGenerateAddress,
   onCopyAddress,
-  onBack
+  onWalletClick,
+  onDepositClick,
+  onSettingsClick,
+  onLogoutClick,
 }) => {
+  const formatted = balance ? balance.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '0';
+
   return (
-    <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '32px', textAlign: 'center' }}>
-        Deposit
-      </h1>
+    <div className="home-screen-container">
+      <div className="home-screen-background">
+        {/* Sparky Logo */}
+        <div className="sparky-logo">
+          <img src={sparkyImg} alt="Sparky" className="sparky-image" />
+        </div>
 
-      <button className="full-width-button" onClick={onGenerateAddress}>
-        Generate Address
-      </button>
-
-      {depositAddress && (
-        <>
-          <div
-            style={{
-              background: '#0B0D11',
-              padding: '16px',
-              borderRadius: '12px',
-              wordBreak: 'break-word',
-              fontFamily: 'monospace',
-              color: '#FFFFFF',
-              fontSize: '14px',
-              marginTop: '24px',
-              textAlign: 'center'
-            }}
-          >
-            {depositAddress}
+        {/* Balance Amount */}
+        <div className="balance-container">
+          <div className="balance-amount">{formatted}</div>
+          <div className="sats-logo">
+            <img src={satsImg} alt="Sats" className="sats-image" />
           </div>
+        </div>
 
-          <button
-            className="full-width-button"
-            onClick={() => onCopyAddress(depositAddress)}
-            style={{ marginTop: '12px' }}
-          >
-            {copySuccess || 'Copy Address'}
+        {/* Deposit Functionality (replaces action buttons) */}
+        <div className="deposit-content">
+          <button className="deposit-generate-button" onClick={onGenerateAddress}>
+            GENERATE ADDRESS
           </button>
 
-          <p
-            style={{
-              color: '#FFFFFF',
-              opacity: 0.7,
-              fontSize: '14px',
-              marginTop: '12px',
-              textAlign: 'center'
-            }}
-          >
-            This address is for deposit only.
-          </p>
-        </>
-      )}
+          {depositAddress && (
+            <>
+              <div className="deposit-address">
+                {depositAddress}
+              </div>
 
-      <button className="full-width-button" onClick={onBack} style={{ marginTop: '32px' }}>
-        Back to Home
-      </button>
+              <button
+                className="deposit-copy-button"
+                onClick={() => onCopyAddress(depositAddress)}
+              >
+                {copySuccess || 'COPY ADDRESS'}
+              </button>
+
+              <p className="deposit-note">
+                This address is for deposit only.
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Bottom Navigation */}
+        <div className="bottom-nav">
+          <button className="nav-button wallet-button" onClick={onWalletClick}>
+            WALLET
+          </button>
+          <button className="nav-button deposit-button" onClick={onDepositClick}>
+            DEPOSIT
+          </button>
+          <button className="nav-button settings-button" onClick={onSettingsClick}>
+            SETTINGS
+          </button>
+          <button className="nav-button logout-button" onClick={onLogoutClick}>
+            LOGOUT
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

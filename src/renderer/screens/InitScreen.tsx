@@ -112,3 +112,4 @@ const InitScreen: React.FC<InitScreenProps> = ({
 };
 
 export default InitScreen;
+ 

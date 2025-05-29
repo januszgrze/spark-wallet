@@ -1,33 +1,65 @@
 import React from 'react';
+import sparkyImg from '../assets/sparky.png';
+import satsImg from '../assets/sats.png';
 
 interface SettingsScreenProps {
+  balance: string;
   onViewTransfers: () => void;
-  onBack: () => void;
+  onWalletClick: () => void;
+  onDepositClick: () => void;
+  onSettingsClick: () => void;
+  onLogoutClick: () => void;
 }
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({
+  balance,
   onViewTransfers,
-  onBack
+  onWalletClick,
+  onDepositClick,
+  onSettingsClick,
+  onLogoutClick,
 }) => {
+  const formatted = balance ? balance.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '0';
+
   return (
-    <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '32px', textAlign: 'center' }}>
-        Settings
-      </h1>
+    <div className="home-screen-container">
+      <div className="home-screen-background">
+        {/* Sparky Logo */}
+        <div className="sparky-logo">
+          <img src={sparkyImg} alt="Sparky" className="sparky-image" />
+        </div>
 
-      <div style={{ marginBottom: '24px' }}>
-        <button 
-          className="full-width-button" 
-          onClick={onViewTransfers}
-          style={{ marginBottom: '16px' }}
-        >
-          View Transfers
-        </button>
+        {/* Balance Amount */}
+        <div className="balance-container">
+          <div className="balance-amount">{formatted}</div>
+          <div className="sats-logo">
+            <img src={satsImg} alt="Sats" className="sats-image" />
+          </div>
+        </div>
+
+        {/* Settings Content (replaces action buttons) */}
+        <div className="settings-content">
+          <button className="settings-view-transfers-button" onClick={onViewTransfers}>
+            VIEW TRANSFERS
+          </button>
+        </div>
+
+        {/* Bottom Navigation */}
+        <div className="bottom-nav">
+          <button className="nav-button wallet-button" onClick={onWalletClick}>
+            WALLET
+          </button>
+          <button className="nav-button deposit-button" onClick={onDepositClick}>
+            DEPOSIT
+          </button>
+          <button className="nav-button settings-button" onClick={onSettingsClick}>
+            SETTINGS
+          </button>
+          <button className="nav-button logout-button" onClick={onLogoutClick}>
+            LOGOUT
+          </button>
+        </div>
       </div>
-
-      <button className="full-width-button" onClick={onBack}>
-        Back to Home
-      </button>
     </div>
   );
 };

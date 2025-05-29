@@ -35,6 +35,22 @@ const App: React.FC = () => {
   const [lightningInvoice, setLightningInvoice] = useState<string>('');
   const [receiveType, setReceiveType] = useState<'spark' | 'lightning'>('spark');
   const [sparkAddress, setSparkAddress] = useState<string>('');
+  
+  // Device detection
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const checkDevice = () => {
+      const userAgent = navigator.userAgent;
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      const isSmallScreen = window.innerWidth <= 768;
+      setIsMobile(isMobileDevice || isSmallScreen);
+    };
+    
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
 
   // Wallet persistence functions
   const saveWalletToStorage = (mnemonicToSave: string) => {
@@ -191,7 +207,6 @@ const App: React.FC = () => {
       setRecipientAddress('');
       setLightningInvoice('');
     } catch (err: unknown) {
-      console.error('Error sending payment:', err);
       if (err instanceof Error) {
         setError(err.message);
       }
@@ -201,9 +216,7 @@ const App: React.FC = () => {
   const handleReceive = async () => {
     if (!wallet || !receiveAmount) return;
     try {
-      console.log('Checking wallet state...');
       const balanceResult = await wallet.getBalance();
-      console.log('Current balance:', balanceResult.balance.toString(), 'sats');
 
       const amount = parseInt(receiveAmount);
       if (isNaN(amount) || amount <= 0) {
@@ -217,12 +230,10 @@ const App: React.FC = () => {
         return;
       }
 
-      console.log('Creating mainnet invoice for amount:', amount);
       const result = await wallet.createLightningInvoice({
         amountSats: amount,
         memo: `Receive ${amount} sats`
       });
-      console.log('Invoice creation result:', result);
 
       // Type check the response
       const hasValidFormat = 
@@ -235,12 +246,10 @@ const App: React.FC = () => {
         typeof result.invoice.encodedInvoice === 'string';
 
       if (!hasValidFormat) {
-        console.error('Invalid response format:', result);
         setError('Failed to generate invoice: received invalid response format from the server');
         return;
       }
 
-      console.log('Setting invoice with id:', result.id);
       setInvoice({
         id: result.id,
         paymentRequest: result.invoice.encodedInvoice,
@@ -250,7 +259,6 @@ const App: React.FC = () => {
       // Start checking payment status
       checkPaymentStatus(result.id);
     } catch (err: unknown) {
-      console.error('Error generating invoice:', err);
       if (err instanceof Error) {
         setError(`Failed to generate invoice: ${err.message}`);
       } else {
@@ -281,7 +289,6 @@ const App: React.FC = () => {
         }
       }
     } catch (err: unknown) {
-      console.error('Error checking payment status:', err);
     }
   };
 
@@ -289,10 +296,8 @@ const App: React.FC = () => {
     if (!wallet) return;
     try {
       const address = await wallet.getSingleUseDepositAddress();
-      console.log('Generated deposit address:', address);
       setDepositAddress(address);
     } catch (err: unknown) {
-      console.error('Error generating deposit address:', err);
       if (err instanceof Error) {
         setError(err.message);
       }
@@ -352,7 +357,6 @@ const App: React.FC = () => {
       }
       
     } catch (err) {
-      console.error('Copy failed:', err);
       setCopySuccess('Failed to copy');
       setTimeout(() => setCopySuccess(''), 2000);
     }
@@ -365,13 +369,10 @@ const App: React.FC = () => {
     }
     
     try {
-      console.log('Claiming deposit with txId:', txId);
       const result = await wallet.claimDeposit(txId);
-      console.log('Deposit claimed:', result);
       await updateBalance();
       setError(''); // Clear any previous errors
     } catch (err: unknown) {
-      console.error('Error claiming deposit:', err);
       if (err instanceof Error) {
         setError(`Failed to claim deposit: ${err.message}`);
       } else {
@@ -383,14 +384,11 @@ const App: React.FC = () => {
   const checkAndClaimDeposit = async () => {
     if (!wallet || !depositAddress) return;
     try {
-      console.log('Checking for deposits to:', depositAddress);
       const txId = await getLatestDepositTxId(depositAddress);
       if (txId) {
-        console.log('Found deposit transaction:', txId);
         await claimDeposit(txId);
       }
     } catch (err: unknown) {
-      console.error('Error checking deposit:', err);
     }
   };
 
@@ -398,10 +396,8 @@ const App: React.FC = () => {
     if (!wallet) return;
     try {
       const address = await wallet.getSparkAddress();
-      console.log('Generated Spark address:', address);
       setSparkAddress(address);
     } catch (err: unknown) {
-      console.error('Error getting Spark address:', err);
       if (err instanceof Error) {
         setError(err.message);
       }
@@ -462,6 +458,7 @@ const App: React.FC = () => {
             balance={balance}
             onSendClick={() => setScreen('SEND')}
             onReceiveClick={() => setScreen('RECEIVE')}
+            onWalletClick={() => setScreen('HOME')}
             onDepositClick={() => setScreen('DEPOSIT')}
             onSettingsClick={() => setScreen('SETTINGS')}
             onLogoutClick={logoutWallet}
@@ -471,6 +468,7 @@ const App: React.FC = () => {
       case 'SEND':
         return (
           <SendScreen
+            balance={balance}
             sendType={sendType}
             sendAmount={sendAmount}
             recipientAddress={recipientAddress}
@@ -481,18 +479,22 @@ const App: React.FC = () => {
             onRecipientAddressChange={setRecipientAddress}
             onLightningInvoiceChange={setLightningInvoice}
             onSend={handleSend}
-            onCancel={() => {
+            onWalletClick={() => {
               setScreen('HOME');
               setSendAmount('');
               setRecipientAddress('');
               setLightningInvoice('');
             }}
+            onDepositClick={() => setScreen('DEPOSIT')}
+            onSettingsClick={() => setScreen('SETTINGS')}
+            onLogoutClick={logoutWallet}
           />
         );
 
       case 'RECEIVE':
         return (
           <ReceiveScreen
+            balance={balance}
             receiveType={receiveType}
             receiveAmount={receiveAmount}
             invoice={invoice}
@@ -504,30 +506,41 @@ const App: React.FC = () => {
             onGetSparkAddress={getSparkAddress}
             onCopyInvoice={copyToClipboard}
             onCopySparkAddress={copyToClipboard}
-            onBack={() => {
+            onWalletClick={() => {
               setScreen('HOME');
               setInvoice(null);
               setReceiveAmount('');
             }}
+            onDepositClick={() => setScreen('DEPOSIT')}
+            onSettingsClick={() => setScreen('SETTINGS')}
+            onLogoutClick={logoutWallet}
           />
         );
 
       case 'DEPOSIT':
         return (
           <DepositScreen
+            balance={balance}
             depositAddress={depositAddress}
             copySuccess={copySuccess}
             onGenerateAddress={updateDepositAddress}
             onCopyAddress={copyToClipboard}
-            onBack={() => setScreen('HOME')}
+            onWalletClick={() => setScreen('HOME')}
+            onDepositClick={() => setScreen('DEPOSIT')}
+            onSettingsClick={() => setScreen('SETTINGS')}
+            onLogoutClick={logoutWallet}
           />
         );
 
       case 'SETTINGS':
         return (
           <SettingsScreen
+            balance={balance}
             onViewTransfers={() => setScreen('TRANSFERS')}
-            onBack={() => setScreen('HOME')}
+            onWalletClick={() => setScreen('HOME')}
+            onDepositClick={() => setScreen('DEPOSIT')}
+            onSettingsClick={() => setScreen('SETTINGS')}
+            onLogoutClick={logoutWallet}
           />
         );
 
@@ -542,8 +555,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
-      <div className="wallet-card">
+    <div className={`app-container ${isMobile ? 'mobile' : 'desktop'}`}>
+      <div className={`wallet-card ${isMobile ? 'mobile' : 'desktop'}`}>
         {renderScreen()}
 
         {error && (
