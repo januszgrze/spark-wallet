@@ -35,6 +35,8 @@ const App: React.FC = () => {
   const [lightningInvoice, setLightningInvoice] = useState<string>('');
   const [receiveType, setReceiveType] = useState<'spark' | 'lightning'>('spark');
   const [sparkAddress, setSparkAddress] = useState<string>('');
+  const [isInitializing, setIsInitializing] = useState<boolean>(true);
+  const [hasSavedWallet, setHasSavedWallet] = useState<boolean>(false);
   
   // Device detection
   const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -78,6 +80,8 @@ const App: React.FC = () => {
         setMnemonic(savedMnemonic);
         setScreen('HOME');
         console.log('Wallet restored from localStorage');
+        setIsInitializing(false);
+        setHasSavedWallet(true);
         return true;
       }
     } catch (err) {
@@ -85,6 +89,8 @@ const App: React.FC = () => {
       // Clear invalid data
       localStorage.removeItem('spark_wallet_mnemonic');
     }
+    setIsInitializing(false);
+    setHasSavedWallet(false);
     return false;
   };
 
@@ -94,6 +100,47 @@ const App: React.FC = () => {
       console.log('Wallet cleared from localStorage');
     } catch (err) {
       console.error('Failed to clear wallet from localStorage:', err);
+    }
+  };
+
+  const restoreSavedWallet = async () => {
+    try {
+      const savedMnemonic = localStorage.getItem('spark_wallet_mnemonic');
+      if (!savedMnemonic) {
+        setError('No saved wallet found');
+        return;
+      }
+
+      console.log('Restoring saved wallet...');
+      const result = await SparkWallet.initialize({
+        mnemonicOrSeed: savedMnemonic,
+        options: {
+          network: 'MAINNET'
+        }
+      });
+      
+      setWallet(result.wallet as WalletInstance);
+      setMnemonic(savedMnemonic);
+      setScreen('HOME');
+      console.log('Saved wallet restored successfully');
+    } catch (err: unknown) {
+      console.error('Failed to restore saved wallet:', err);
+      if (err instanceof Error) {
+        setError(`Failed to restore saved wallet: ${err.message}`);
+      } else {
+        setError('An unknown error occurred while restoring saved wallet');
+      }
+      // Clear invalid saved data
+      localStorage.removeItem('spark_wallet_mnemonic');
+      setHasSavedWallet(false);
+    }
+  };
+
+  const clearSavedWallet = () => {
+    if (window.confirm('Are you sure you want to clear the saved wallet data?')) {
+      clearWalletFromStorage();
+      setHasSavedWallet(false);
+      console.log('Saved wallet data cleared');
     }
   };
 
@@ -423,9 +470,20 @@ const App: React.FC = () => {
   // Check for saved wallet on app startup
   useEffect(() => {
     const initializeApp = async () => {
-      const walletRestored = await loadWalletFromStorage();
-      if (!walletRestored) {
-        console.log('No saved wallet found, showing init screen');
+      console.log('App starting up, checking for saved wallet...');
+      
+      // Always start at init screen
+      setIsInitializing(false);
+      setScreen('INIT');
+      
+      // Check if there's a saved wallet but don't auto-restore
+      const savedMnemonic = localStorage.getItem('spark_wallet_mnemonic');
+      if (savedMnemonic) {
+        console.log('Found saved wallet - user can choose to restore from init screen');
+        setHasSavedWallet(true);
+      } else {
+        console.log('No saved wallet found');
+        setHasSavedWallet(false);
       }
     };
     
@@ -433,6 +491,35 @@ const App: React.FC = () => {
   }, []);
 
   const renderScreen = () => {
+    // Show loading while checking for saved wallet
+    if (isInitializing) {
+      return (
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '200px'
+        }}>
+          <div style={{ 
+            fontSize: '18px', 
+            marginBottom: '16px',
+            color: '#FFFFFF'
+          }}>
+            Loading...
+          </div>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid #00FF2B',
+            borderTop: '3px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+        </div>
+      );
+    }
+
     switch (screen) {
       case 'INIT':
         return (
@@ -449,6 +536,11 @@ const App: React.FC = () => {
             }}
             onSeedInputChange={setSeedInput}
             onContinueToWallet={() => setScreen('HOME')}
+            onCopyMnemonic={copyToClipboard}
+            copySuccess={copySuccess}
+            hasSavedWallet={hasSavedWallet}
+            onRestoreSavedWallet={restoreSavedWallet}
+            onClearSavedWallet={clearSavedWallet}
           />
         );
       
