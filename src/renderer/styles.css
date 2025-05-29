@@ -193,11 +193,11 @@
   .balance-container {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     position: absolute;
-    left: 27%;
+    left: 8%;
     top: 21%;
-    transform: translateX(-50%);
+    transform: none;
     margin: 0;
     padding: 0;
   }
