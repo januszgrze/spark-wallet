@@ -15,6 +15,15 @@ interface InitScreenProps {
   hasSavedWallet?: boolean;
   onRestoreSavedWallet?: () => void;
   onClearSavedWallet?: () => void;
+  // PIN-related props
+  showPinSetup?: boolean;
+  showPinEntry?: boolean;
+  pinInput?: string;
+  onPinInputChange?: (pin: string) => void;
+  onSetPin?: (pin: string) => void;
+  onVerifyPin?: (pin: string) => void;
+  onCancelPin?: () => void;
+  pinError?: string;
 }
 
 const InitScreen: React.FC<InitScreenProps> = ({
@@ -31,7 +40,16 @@ const InitScreen: React.FC<InitScreenProps> = ({
   copySuccess,
   hasSavedWallet,
   onRestoreSavedWallet,
-  onClearSavedWallet
+  onClearSavedWallet,
+  // PIN-related props
+  showPinSetup,
+  showPinEntry,
+  pinInput,
+  onPinInputChange,
+  onSetPin,
+  onVerifyPin,
+  onCancelPin,
+  pinError
 }) => {
   const [showCopyNotification, setShowCopyNotification] = useState(false);
 
@@ -49,6 +67,116 @@ const InitScreen: React.FC<InitScreenProps> = ({
 
   const dismissNotification = () => {
     setShowCopyNotification(false);
+  };
+
+  const renderPinInput = (title: string, subtitle: string, onSubmit: (pin: string) => void) => {
+    const handlePinChange = (value: string) => {
+      // Only allow digits and max 4 characters
+      const cleaned = value.replace(/\D/g, '').slice(0, 4);
+      if (onPinInputChange) {
+        onPinInputChange(cleaned);
+      }
+    };
+
+    const handleSubmit = () => {
+      if (pinInput && pinInput.length === 4) {
+        onSubmit(pinInput);
+      }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && pinInput && pinInput.length === 4) {
+        handleSubmit();
+      }
+    };
+
+    return (
+      <div style={{ width: '100%' }}>
+        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
+          {title}
+        </h3>
+        <p style={{ fontSize: '14px', color: '#999', marginBottom: '24px' }}>
+          {subtitle}
+        </p>
+
+        {/* PIN Input Display */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '12px',
+          marginBottom: '24px'
+        }}>
+          {[0, 1, 2, 3].map(index => (
+            <div
+              key={index}
+              style={{
+                width: '50px',
+                height: '50px',
+                border: '2px solid #00FF2B',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: '#FFFFFF',
+                background: pinInput && pinInput[index] ? '#00FF2B20' : 'transparent'
+              }}
+            >
+              {pinInput && pinInput[index] ? '●' : ''}
+            </div>
+          ))}
+        </div>
+
+        {/* Hidden input for mobile keyboards */}
+        <input
+          type="tel"
+          value={pinInput || ''}
+          onChange={(e) => handlePinChange(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Enter 4-digit PIN"
+          maxLength={4}
+          style={{
+            width: '100%',
+            padding: '16px',
+            fontSize: '18px',
+            textAlign: 'center',
+            background: '#1E2025',
+            border: '1px solid #00FF2B',
+            borderRadius: '12px',
+            color: '#FFFFFF',
+            marginBottom: '16px',
+            letterSpacing: '8px'
+          }}
+        />
+
+        {pinError && (
+          <div style={{
+            color: '#FF3B3B',
+            fontSize: '14px',
+            marginBottom: '16px',
+            textAlign: 'center'
+          }}>
+            {pinError}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            className="full-width-button"
+            onClick={handleSubmit}
+            disabled={!pinInput || pinInput.length !== 4}
+          >
+            Continue
+          </button>
+          {onCancelPin && (
+            <button className="full-width-button" onClick={onCancelPin}>
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -126,7 +254,67 @@ const InitScreen: React.FC<InitScreenProps> = ({
         Wallet Setup
       </h2>
 
-      {!isRestoring ? (
+      {/* PIN Setup Screen - only show when explicitly setting up PIN */}
+      {showPinSetup && onSetPin ? (
+        renderPinInput(
+          "Set Your PIN",
+          "Create a 4-digit PIN to secure your wallet",
+          onSetPin
+        )
+      ) : 
+      
+      /* PIN Entry Screen - only show when verifying PIN for saved wallet */
+      showPinEntry && onVerifyPin ? (
+        renderPinInput(
+          "Enter Your PIN",
+          "Enter your 4-digit PIN to access your wallet",
+          onVerifyPin
+        )
+      ) :
+
+      /* Restore Wallet Screen */
+      isRestoring ? (
+        <div style={{ width: '100%' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>
+            Restore Wallet
+          </h3>
+
+          <textarea
+            placeholder="Enter your 12-word seed phrase"
+            value={seedInput}
+            onChange={(e) => onSeedInputChange(e.target.value)}
+            style={{
+              background: '#1E2025',
+              border: '1px solid #00FF2B',
+              color: '#FFFFFF',
+              borderRadius: '12px',
+              padding: '16px',
+              width: '100%',
+              minHeight: '100px',
+              fontSize: '14px',
+              fontFamily: 'monospace',
+              marginBottom: '16px'
+            }}
+          />
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              className="full-width-button"
+              onClick={onRestoreWallet}
+              disabled={!seedInput.trim() || seedInput.trim().split(/\s+/).length !== 12}
+            >
+              Restore
+            </button>
+
+            <button className="full-width-button" onClick={onCancelRestore}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : 
+
+      /* Main Init Screen */
+      (
         <>
           {hasSavedWallet && onRestoreSavedWallet && (
             <>
@@ -139,7 +327,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
                   marginBottom: '16px'
                 }}
               >
-                Continue with Saved Wallet
+                Log back in
               </button>
               
               <div style={{ 
@@ -193,7 +381,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
           {mnemonic && (
             <div style={{ marginTop: '32px', width: '100%' }}>
               <p style={{ marginBottom: '12px' }}>
-                <strong>⚠️ IMPORTANT:</strong> Please save your seed phrase in a secure location. You will need it to restore your wallet.
+                <strong>⚠️ IMPORTANT:</strong> Please save your seed phrase in a secure location. Copy it to a password manager or write it down. You will need it to restore your wallet.
               </p>
               <div
                 style={{
@@ -211,7 +399,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
               >
                 {mnemonic}
               </div>
-              
+
               <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                 {onCopyMnemonic && (
                   <button
@@ -236,44 +424,6 @@ const InitScreen: React.FC<InitScreenProps> = ({
             </div>
           )}
         </>
-      ) : (
-        <div style={{ width: '100%' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>
-            Restore Wallet
-          </h3>
-
-          <textarea
-            placeholder="Enter your 12-word seed phrase"
-            value={seedInput}
-            onChange={(e) => onSeedInputChange(e.target.value)}
-            style={{
-              background: '#1E2025',
-              border: '1px solid #00FF2B',
-              color: '#FFFFFF',
-              borderRadius: '12px',
-              padding: '16px',
-              width: '100%',
-              minHeight: '100px',
-              fontSize: '14px',
-              fontFamily: 'monospace',
-              marginBottom: '16px'
-            }}
-          />
-
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              className="full-width-button"
-              onClick={onRestoreWallet}
-              disabled={!seedInput.trim() || seedInput.trim().split(/\s+/).length !== 12}
-            >
-              Restore
-            </button>
-
-            <button className="full-width-button" onClick={onCancelRestore}>
-              Cancel
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );

@@ -38,6 +38,13 @@ const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
   const [hasSavedWallet, setHasSavedWallet] = useState<boolean>(false);
   
+  // PIN-related state
+  const [showPinSetup, setShowPinSetup] = useState<boolean>(false);
+  const [showPinEntry, setShowPinEntry] = useState<boolean>(false);
+  const [pinInput, setPinInput] = useState<string>('');
+  const [pinError, setPinError] = useState<string>('');
+  const [pendingMnemonic, setPendingMnemonic] = useState<string>('');
+  
   // Device detection
   const [isMobile, setIsMobile] = useState<boolean>(false);
   
@@ -61,6 +68,57 @@ const App: React.FC = () => {
       console.log('Wallet saved to localStorage');
     } catch (err) {
       console.error('Failed to save wallet to localStorage:', err);
+    }
+  };
+
+  // PIN utility functions
+  const hashPin = async (pin: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(pin + 'spark_salt'); // Add salt for security
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const saveWalletWithPin = async (mnemonicToSave: string, pin: string) => {
+    try {
+      const hashedPin = await hashPin(pin);
+      const walletData = {
+        mnemonic: mnemonicToSave,
+        pinHash: hashedPin,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('spark_wallet_data', JSON.stringify(walletData));
+      // Keep legacy storage for compatibility
+      localStorage.setItem('spark_wallet_mnemonic', mnemonicToSave);
+      console.log('Wallet saved with PIN protection');
+    } catch (err) {
+      console.error('Failed to save wallet with PIN:', err);
+    }
+  };
+
+  const verifyPin = async (pin: string): Promise<boolean> => {
+    try {
+      const walletDataStr = localStorage.getItem('spark_wallet_data');
+      if (!walletDataStr) return false;
+      
+      const walletData = JSON.parse(walletDataStr);
+      const hashedPin = await hashPin(pin);
+      return hashedPin === walletData.pinHash;
+    } catch (err) {
+      console.error('Failed to verify PIN:', err);
+      return false;
+    }
+  };
+
+  const hasPinProtection = (): boolean => {
+    try {
+      const walletDataStr = localStorage.getItem('spark_wallet_data');
+      if (!walletDataStr) return false;
+      const walletData = JSON.parse(walletDataStr);
+      return !!walletData.pinHash;
+    } catch (err) {
+      return false;
     }
   };
 
@@ -97,6 +155,7 @@ const App: React.FC = () => {
   const clearWalletFromStorage = () => {
     try {
       localStorage.removeItem('spark_wallet_mnemonic');
+      localStorage.removeItem('spark_wallet_data'); // Clear PIN data too
       console.log('Wallet cleared from localStorage');
     } catch (err) {
       console.error('Failed to clear wallet from localStorage:', err);
@@ -176,7 +235,9 @@ const App: React.FC = () => {
       setWallet(result.wallet as WalletInstance);
       if (result.mnemonic) {
         setMnemonic(result.mnemonic);
-        saveWalletToStorage(result.mnemonic); // Save to localStorage
+        setPendingMnemonic(result.mnemonic);
+        // Don't show PIN setup immediately - let user see mnemonic first
+        // PIN setup will be triggered when they click "Continue to Wallet"
       }
     } catch (err: unknown) {
       console.error('Wallet initialization error:', err);
@@ -478,7 +539,9 @@ const App: React.FC = () => {
       
       // Check if there's a saved wallet but don't auto-restore
       const savedMnemonic = localStorage.getItem('spark_wallet_mnemonic');
-      if (savedMnemonic) {
+      const savedWalletData = localStorage.getItem('spark_wallet_data');
+      
+      if (savedWalletData || savedMnemonic) {
         console.log('Found saved wallet - user can choose to restore from init screen');
         setHasSavedWallet(true);
       } else {
@@ -489,6 +552,72 @@ const App: React.FC = () => {
     
     initializeApp();
   }, []);
+
+  // PIN handling functions
+  const handleSetPin = async (pin: string) => {
+    try {
+      if (pendingMnemonic) {
+        await saveWalletWithPin(pendingMnemonic, pin);
+        setShowPinSetup(false);
+        setPinInput('');
+        setPendingMnemonic('');
+        setScreen('HOME'); // Navigate to home screen after PIN is set
+        console.log('PIN set successfully');
+      }
+    } catch (err) {
+      console.error('Failed to set PIN:', err);
+      setPinError('Failed to set PIN. Please try again.');
+    }
+  };
+
+  const handleVerifyPin = async (pin: string) => {
+    try {
+      const isValid = await verifyPin(pin);
+      if (isValid) {
+        // PIN is correct, restore the wallet
+        const walletDataStr = localStorage.getItem('spark_wallet_data');
+        if (walletDataStr) {
+          const walletData = JSON.parse(walletDataStr);
+          const result = await SparkWallet.initialize({
+            mnemonicOrSeed: walletData.mnemonic,
+            options: {
+              network: 'MAINNET'
+            }
+          });
+          
+          setWallet(result.wallet as WalletInstance);
+          setMnemonic(walletData.mnemonic);
+          setScreen('HOME');
+          setShowPinEntry(false);
+          setPinInput('');
+          setPinError('');
+          console.log('Wallet restored with PIN verification');
+        }
+      } else {
+        setPinError('Incorrect PIN. Please try again.');
+      }
+    } catch (err) {
+      console.error('Failed to verify PIN:', err);
+      setPinError('Failed to verify PIN. Please try again.');
+    }
+  };
+
+  const handlePinCancel = () => {
+    setShowPinSetup(false);
+    setShowPinEntry(false);
+    setPinInput('');
+    setPinError('');
+    setPendingMnemonic('');
+  };
+
+  const startSavedWalletRestore = () => {
+    if (hasPinProtection()) {
+      setShowPinEntry(true);
+    } else {
+      // Legacy wallet without PIN - restore directly
+      restoreSavedWallet();
+    }
+  };
 
   const renderScreen = () => {
     // Show loading while checking for saved wallet
@@ -535,12 +664,29 @@ const App: React.FC = () => {
               setSeedInput('');
             }}
             onSeedInputChange={setSeedInput}
-            onContinueToWallet={() => setScreen('HOME')}
+            onContinueToWallet={() => {
+              // If we have a pending mnemonic (just created), set up PIN first
+              if (pendingMnemonic) {
+                setShowPinSetup(true);
+              } else {
+                // Otherwise go directly to wallet
+                setScreen('HOME');
+              }
+            }}
             onCopyMnemonic={copyToClipboard}
             copySuccess={copySuccess}
             hasSavedWallet={hasSavedWallet}
-            onRestoreSavedWallet={restoreSavedWallet}
+            onRestoreSavedWallet={startSavedWalletRestore}
             onClearSavedWallet={clearSavedWallet}
+            // PIN-related props
+            showPinSetup={showPinSetup}
+            showPinEntry={showPinEntry}
+            pinInput={pinInput}
+            onPinInputChange={setPinInput}
+            onSetPin={handleSetPin}
+            onVerifyPin={handleVerifyPin}
+            onCancelPin={handlePinCancel}
+            pinError={pinError}
           />
         );
       
