@@ -402,7 +402,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
                 onClick={onRestoreSavedWallet}
                 style={sparkButtonStyle}
               >
-                Continue with Saved Wallet
+                Login with PIN
               </button>
               
               <div style={{ 
