@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import sparkyImg from '../assets/sparky.png';
 
 interface InitScreenProps {
   isRestoring: boolean;
@@ -69,6 +70,25 @@ const InitScreen: React.FC<InitScreenProps> = ({
     setShowCopyNotification(false);
   };
 
+  // Custom button style for Spark theme
+  const sparkButtonStyle = {
+    background: '#2A2424',
+    color: '#EDFF32',
+    border: 'none',
+    borderRadius: '12px',
+    padding: '14px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    textTransform: 'uppercase' as const,
+    width: '100%'
+  };
+
+  const sparkButtonHoverStyle = {
+    ...sparkButtonStyle,
+    opacity: 0.9
+  };
+
   const renderPinInput = (title: string, subtitle: string, onSubmit: (pin: string) => void) => {
     const handlePinChange = (value: string) => {
       // Only allow digits and max 4 characters
@@ -92,10 +112,10 @@ const InitScreen: React.FC<InitScreenProps> = ({
 
     return (
       <div style={{ width: '100%' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
+        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px', color: '#2A2424' }}>
           {title}
         </h3>
-        <p style={{ fontSize: '14px', color: '#999', marginBottom: '24px' }}>
+        <p style={{ fontSize: '14px', color: 'rgba(42, 36, 36, 0.7)', marginBottom: '24px' }}>
           {subtitle}
         </p>
 
@@ -112,15 +132,15 @@ const InitScreen: React.FC<InitScreenProps> = ({
               style={{
                 width: '50px',
                 height: '50px',
-                border: '2px solid #00FF2B',
+                border: '2px solid #2A2424',
                 borderRadius: '12px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '24px',
                 fontWeight: 'bold',
-                color: '#FFFFFF',
-                background: pinInput && pinInput[index] ? '#00FF2B20' : 'transparent'
+                color: '#2A2424',
+                background: pinInput && pinInput[index] ? 'rgba(42, 36, 36, 0.1)' : 'transparent'
               }}
             >
               {pinInput && pinInput[index] ? '●' : ''}
@@ -141,10 +161,10 @@ const InitScreen: React.FC<InitScreenProps> = ({
             padding: '16px',
             fontSize: '18px',
             textAlign: 'center',
-            background: '#1E2025',
-            border: '1px solid #00FF2B',
+            background: 'rgba(42, 36, 36, 0.1)',
+            border: '2px solid #2A2424',
             borderRadius: '12px',
-            color: '#FFFFFF',
+            color: '#2A2424',
             marginBottom: '16px',
             letterSpacing: '8px'
           }}
@@ -166,11 +186,24 @@ const InitScreen: React.FC<InitScreenProps> = ({
             className="full-width-button"
             onClick={handleSubmit}
             disabled={!pinInput || pinInput.length !== 4}
+            style={{
+              ...sparkButtonStyle,
+              opacity: (!pinInput || pinInput.length !== 4) ? 0.5 : 1
+            }}
           >
             Continue
           </button>
           {onCancelPin && (
-            <button className="full-width-button" onClick={onCancelPin}>
+            <button 
+              className="full-width-button" 
+              onClick={onCancelPin}
+              style={{
+                ...sparkButtonStyle,
+                background: 'transparent',
+                border: '2px solid #2A2424',
+                color: '#2A2424'
+              }}
+            >
               Cancel
             </button>
           )}
@@ -180,7 +213,12 @@ const InitScreen: React.FC<InitScreenProps> = ({
   };
 
   return (
-    <div className="wallet-card" style={{ justifyContent: 'flex-start', position: 'relative' }}>
+    <div className="wallet-card" style={{ 
+      justifyContent: 'flex-start', 
+      position: 'relative',
+      background: '#EDFF32',
+      color: '#2A2424'
+    }}>
       {/* Copy Success Notification */}
       {showCopyNotification && (
         <>
@@ -250,8 +288,36 @@ const InitScreen: React.FC<InitScreenProps> = ({
         </>
       )}
 
-      <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '24px' }}>
-        Wallet Setup
+      {/* Sparky Logo */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        width: '100%',
+        marginBottom: '24px'
+      }}>
+        <img 
+          src={sparkyImg} 
+          alt="Sparky Logo" 
+          style={{
+            width: '120px',
+            height: 'auto',
+            objectFit: 'contain',
+            display: 'block',
+            margin: '0 auto'
+          }}
+        />
+      </div>
+
+      <h2 style={{ 
+        fontSize: '20px', 
+        fontWeight: 'bold', 
+        marginBottom: '24px',
+        color: '#2A2424',
+        textAlign: 'center'
+      }}>
+        Welcome to Sparky - a reckless Spark wallet. Login or set up your wallet below.
       </h2>
 
       {/* PIN Setup Screen - only show when explicitly setting up PIN */}
@@ -275,7 +341,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
       /* Restore Wallet Screen */
       isRestoring ? (
         <div style={{ width: '100%' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: '#2A2424' }}>
             Restore Wallet
           </h3>
 
@@ -284,9 +350,9 @@ const InitScreen: React.FC<InitScreenProps> = ({
             value={seedInput}
             onChange={(e) => onSeedInputChange(e.target.value)}
             style={{
-              background: '#1E2025',
-              border: '1px solid #00FF2B',
-              color: '#FFFFFF',
+              background: 'rgba(42, 36, 36, 0.1)',
+              border: '2px solid #2A2424',
+              color: '#2A2424',
               borderRadius: '12px',
               padding: '16px',
               width: '100%',
@@ -302,11 +368,24 @@ const InitScreen: React.FC<InitScreenProps> = ({
               className="full-width-button"
               onClick={onRestoreWallet}
               disabled={!seedInput.trim() || seedInput.trim().split(/\s+/).length !== 12}
+              style={{
+                ...sparkButtonStyle,
+                opacity: (!seedInput.trim() || seedInput.trim().split(/\s+/).length !== 12) ? 0.5 : 1
+              }}
             >
               Restore
             </button>
 
-            <button className="full-width-button" onClick={onCancelRestore}>
+            <button 
+              className="full-width-button" 
+              onClick={onCancelRestore}
+              style={{
+                ...sparkButtonStyle,
+                background: 'transparent',
+                border: '2px solid #2A2424',
+                color: '#2A2424'
+              }}
+            >
               Cancel
             </button>
           </div>
@@ -321,19 +400,15 @@ const InitScreen: React.FC<InitScreenProps> = ({
               <button 
                 className="full-width-button" 
                 onClick={onRestoreSavedWallet}
-                style={{ 
-                  background: '#00FF2B', 
-                  color: '#000000',
-                  marginBottom: '16px'
-                }}
+                style={sparkButtonStyle}
               >
-                Log back in
+                Continue with Saved Wallet
               </button>
               
               <div style={{ 
                 width: '100%', 
                 height: '1px', 
-                background: '#333', 
+                background: '#2A2424', 
                 margin: '16px 0',
                 position: 'relative'
               }}>
@@ -342,9 +417,9 @@ const InitScreen: React.FC<InitScreenProps> = ({
                   left: '50%',
                   top: '50%',
                   transform: 'translate(-50%, -50%)',
-                  background: '#1E2025',
+                  background: '#EDFF32',
                   padding: '0 12px',
-                  color: '#666',
+                  color: '#2A2424',
                   fontSize: '12px'
                 }}>
                   OR
@@ -353,11 +428,11 @@ const InitScreen: React.FC<InitScreenProps> = ({
             </>
           )}
           
-          <button className="full-width-button" onClick={onInitializeWallet}>
+          <button className="full-width-button" onClick={onInitializeWallet} style={sparkButtonStyle}>
             Create New Wallet
           </button>
 
-          <button className="full-width-button" onClick={onStartRestore} style={{ marginTop: '16px' }}>
+          <button className="full-width-button" onClick={onStartRestore} style={{ ...sparkButtonStyle, marginTop: '16px' }}>
             Restore Existing Wallet
           </button>
 
@@ -367,11 +442,12 @@ const InitScreen: React.FC<InitScreenProps> = ({
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#666',
+                color: '#2A2424',
                 fontSize: '12px',
                 marginTop: '24px',
                 cursor: 'pointer',
-                textDecoration: 'underline'
+                textDecoration: 'underline',
+                opacity: 0.7
               }}
             >
               Clear Saved Wallet Data
@@ -380,20 +456,22 @@ const InitScreen: React.FC<InitScreenProps> = ({
 
           {mnemonic && (
             <div style={{ marginTop: '32px', width: '100%' }}>
-              <p style={{ marginBottom: '12px' }}>
-                <strong>⚠️ IMPORTANT:</strong> Please save your seed phrase in a secure location. Copy it to a password manager or write it down. You will need it to restore your wallet.
+              <p style={{ marginBottom: '12px', color: '#2A2424' }}>
+                <strong>⚠️ IMPORTANT:</strong> Please save your seed phrase in a secure 
+                location. Copy it to a password manager or write it down. You will need 
+                it to restore your wallet.
               </p>
               <div
                 style={{
-                  background: '#0B0D11',
+                  background: '#2A2424',
                   padding: '16px',
                   borderRadius: '12px',
                   wordBreak: 'break-word',
                   fontFamily: 'monospace',
                   fontSize: '14px',
-                  color: '#FFFFFF',
+                  color: '#EDFF32',
                   textAlign: 'center',
-                  border: '1px solid #00FF2B',
+                  border: '2px solid #2A2424',
                   position: 'relative'
                 }}
               >
@@ -406,8 +484,9 @@ const InitScreen: React.FC<InitScreenProps> = ({
                     className="full-width-button"
                     onClick={() => onCopyMnemonic(mnemonic)}
                     style={{ 
-                      background: copySuccess === mnemonic ? '#28a745' : '#00FF2B',
-                      color: '#000000'
+                      ...sparkButtonStyle,
+                      background: copySuccess === mnemonic ? '#28a745' : '#2A2424',
+                      color: copySuccess === mnemonic ? '#FFFFFF' : '#EDFF32'
                     }}
                   >
                     {copySuccess === mnemonic ? '✓ Copied!' : '📋 Copy Seed Phrase'}
@@ -417,6 +496,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
                 <button
                   className="full-width-button"
                   onClick={onContinueToWallet}
+                  style={sparkButtonStyle}
                 >
                   Continue to Wallet
                 </button>
