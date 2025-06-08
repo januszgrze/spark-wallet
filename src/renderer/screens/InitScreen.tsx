@@ -317,7 +317,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
         color: '#2A2424',
         textAlign: 'center'
       }}>
-        Welcome to Sparky - a reckless Spark wallet. Login or set up your wallet below.
+        Welcome to Sparky - a reckless Spark wallet. This wallet has known bugs and is not recommended for production use. Do not use this wallet for any reason other than testing. Do not use this wallet with funds you are not willing to lose.
       </h2>
 
       {/* PIN Setup Screen - only show when explicitly setting up PIN */}
